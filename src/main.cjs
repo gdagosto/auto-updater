@@ -181,7 +181,7 @@ autoUpdater.on("download-progress", (progressObj) => {
 
 autoUpdater.on("update-downloaded", (ev, info) => {
   sendStatusToWindow("Update downloaded; will install in 5 seconds");
-  autoUpdater.quitAndInstall();
+  autoUpdater.quitAndInstall(true, true);
 });
 
 app.on("ready", function () {
