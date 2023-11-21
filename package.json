@@ -1,6 +1,6 @@
 {
   "name": "electron-updater-generic-example",
-  "version": "0.5.6",
+  "version": "0.5.5",
   "main": "src/main.cjs",
   "description": "electron-updater generic example project",
   "author": "Matt Haggard",

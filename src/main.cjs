@@ -127,9 +127,9 @@ template.unshift({
 //-------------------------------------------------------------------
 let win;
 
-function sendStatusToWindow(text) {
+function sendStatusToWindow(text, type = "message") {
   log.info(text);
-  win.webContents.send("message", text);
+  win.webContents.send(type, text);
 }
 
 function createDefaultWindow() {
@@ -164,16 +164,15 @@ autoUpdater.on("error", (info) => {
 });
 
 autoUpdater.on("download-progress", (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
-  log_message = log_message + " - Downloaded " + progressObj.percent + "%";
-  log_message =
-    log_message +
-    " (" +
-    progressObj.transferred +
-    "/" +
-    progressObj.total +
-    ")";
-  sendStatusToWindow(log_message);
+  sendStatusToWindow(
+    JSON.stringify({
+      bps: progressObj.bytesPerSecond,
+      pct: progressObj.percent,
+      curr: progressObj.transferred,
+      total: progressObj.total,
+    }),
+    "progress"
+  );
 });
 
 autoUpdater.on("update-downloaded", (ev, info) => {

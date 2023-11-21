@@ -12,4 +12,56 @@ ipcRenderer.on("message", function (event, text) {
   container.appendChild(message);
 });
 
+const KILO = 1024;
+
+const letras = ["b", "kb", "Mb", "Gb", "Tb"];
+
+function transformaEmBit(bytes, fixo = -1) {
+  const bits = bytes * 8;
+
+  let num = bits;
+  let i = 0;
+
+  if (fixo === -1) {
+    while (num >= KILO) {
+      num /= KILO;
+      i++;
+    }
+  } else {
+    i = fixo;
+    for (let j = 0; j < i; j++) {
+      num /= KILO;
+    }
+  }
+
+  if (i <= 1) {
+    num = num.toFixed(0);
+  } else {
+    num = num.toFixed(1);
+  }
+
+  return [num, letras[i], i];
+}
+
+function exibeVelocidade(bytes) {
+  const [num, letra, _] = transformaEmBit(bytes);
+  return `${num} ${letra}/s`;
+}
+
+function exibeAtualTotal(atual, total) {
+  const [numTotal, letra, i] = transformaEmBit(total);
+  const numAtual = transformaEmBit(atual, i)[0];
+
+  return `${numAtual} / ${numTotal} ${letra}`;
+}
+
+ipcRenderer.on("progress", function (event, raw) {
+  const { bps, pct, curr, total } = JSON.parse(raw);
+
+  // Ajusta velocidade
+  document.getElementById("velocidade").innerHTML = exibeVelocidade(bps);
+  document.getElementById("pct").value = pct;
+  document.getElementById("atual").innerHTML = exibeAtualTotal(curr, total);
+});
+
 ipcRenderer.on("update-ready", function (event) {});

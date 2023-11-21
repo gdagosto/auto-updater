@@ -25,7 +25,7 @@ const config = {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     runAfterFinish: true,
-    perMachine: false,
+    perMachine: true,
     artifactName: "${productName}-${os}-${channel}-${version}.${ext}",
   },
 
