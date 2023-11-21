@@ -5,12 +5,27 @@ document.getElementById("version").innerText = version;
 // Listen for messages
 import { ipcRenderer } from "electron";
 
-ipcRenderer.on("message", function (event, text) {
+ipcRenderer.on("message", function (text) {
+  const { type, data } = JSON.parse(text);
+
+  if (type === "message") onMessage(data);
+  if (type === "progress") onProgress(data);
+});
+
+function onMessage(msg) {
   const container = document.getElementById("messages");
   const message = document.createElement("div");
-  message.innerHTML = text;
+  message.innerHTML = msg;
   container.appendChild(message);
-});
+}
+
+function onProgress(progressRaw) {
+  const { bps, pct, curr, total } = JSON.parse(progressRaw);
+  // Ajusta velocidade
+  document.getElementById("velocidade").innerHTML = exibeVelocidade(bps);
+  document.getElementById("pct").value = pct;
+  document.getElementById("atual").innerHTML = exibeAtualTotal(curr, total);
+}
 
 const KILO = 1024;
 
@@ -54,14 +69,3 @@ function exibeAtualTotal(atual, total) {
 
   return `${numAtual} / ${numTotal} ${letra}`;
 }
-
-ipcRenderer.on("progress", function (event, raw) {
-  const { bps, pct, curr, total } = JSON.parse(raw);
-
-  // Ajusta velocidade
-  document.getElementById("velocidade").innerHTML = exibeVelocidade(bps);
-  document.getElementById("pct").value = pct;
-  document.getElementById("atual").innerHTML = exibeAtualTotal(curr, total);
-});
-
-ipcRenderer.on("update-ready", function (event) {});
