@@ -23,14 +23,81 @@
       // Listen for messages
       const { ipcRenderer } = require("electron");
 
-      ipcRenderer.on("message", function (event, text) {
-        const container = document.getElementById("messages");
-        const message = document.createElement("div");
-        message.innerHTML = text;
-        container.appendChild(message);
+      ipcRenderer.on("message", function (ev, text) {
+        const parsed = JSON.parse(text);
+        if (parsed.type === "message") onMessage(parsed.data);
+        if (parsed.type === "progress") onProgress(parsed.data);
       });
 
-      ipcRenderer.on("update-ready", function (event) {});
+      function onMessage(msg) {
+        const container = document.getElementById("messages");
+        const message = document.createElement("div");
+        message.innerHTML = msg;
+        container.appendChild(message);
+      }
+
+      function onProgress(progressRaw) {
+        const { bps, pct, curr, total } = progressRaw;
+        // Ajusta velocidade
+        document.getElementById("velocidade").innerHTML = exibeVelocidade(bps);
+        document.getElementById("pct").value = pct;
+        document.getElementById("atual").innerHTML = exibeAtualTotal(
+          curr,
+          total
+        );
+      }
+
+      const KILO = 1024;
+
+      const letras = ["", "k", "M", "G", "T"];
+
+      function transformaEmNumero(num, fixo = -1) {
+        let i = 0;
+
+        if (fixo === -1) {
+          while (num >= KILO) {
+            num /= KILO;
+            i++;
+          }
+        } else {
+          i = fixo;
+          for (let j = 0; j < i; j++) {
+            num /= KILO;
+          }
+        }
+
+        if (i <= 1) {
+          num = num.toFixed(0);
+        } else {
+          num = num.toFixed(1);
+        }
+
+        return [num, letras[i], i];
+      }
+
+      function transformaEmByte(bytes, fixo = -1) {
+        let obj = transformaEmNumero(bytes, fixo);
+        obj[1] += "B";
+        return obj;
+      }
+
+      function transformaEmBit(bytes, fixo = -1) {
+        let obj = transformaEmNumero(bytes * 8, fixo);
+        obj[1] += "b";
+        return obj;
+      }
+
+      function exibeVelocidade(bytes) {
+        const [num, letra, _] = transformaEmBit(bytes);
+        return `${num} ${letra}/s`;
+      }
+
+      function exibeAtualTotal(atual, total) {
+        const [numTotal, letra, i] = transformaEmByte(total);
+        const numAtual = transformaEmByte(atual, i)[0];
+
+        return `${numAtual} / ${numTotal} ${letra}`;
+      }
     </script>
   </body>
 </html>
@@ -51,7 +118,7 @@
   #messages {
     background-color: #000;
     width: 100%;
-    height: 300px;
+    min-height: 300px;
     margin: 1rem;
     border-radius: 0.5rem;
     padding: 1rem;
