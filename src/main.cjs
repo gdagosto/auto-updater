@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Menu, autoUpdater, dialog } = require("electron");
+const { app, BrowserWindow, Menu } = require("electron");
+const { autoUpdater, AppUpdater } = require("electron-updater");
 const log = require("electron-log");
 const spawn = require("child_process").spawn;
 const path = require("path");
@@ -58,13 +59,13 @@ if (handleStartupEvent()) {
  * 2. require `updater.js` for menu implementation, and set `checkForUpdates` callback from `updater` for the click property of `Check Updates...` MenuItem.
  */
 
-const server = "http://127.0.0.1:8080";
-const url = `${server}/update/${process.platform}/${app.getVersion()}`;
-autoUpdater.setFeedURL({ url });
+// const server = "http://127.0.0.1:8080";
+// const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+// autoUpdater.setFeedURL({ url });
 
-setInterval(() => {
-  autoUpdater.checkForUpdates();
-}, 60000);
+// setInterval(() => {
+// autoUpdater.checkForUpdates();
+// }, 60000);
 
 // export this to MenuItem click callback
 function checkForUpdates(menuItem, focusedWindow, event) {
@@ -158,12 +159,21 @@ autoUpdater.on("update-not-available", (ev, info) => {
   sendStatusToWindow("Update not available.");
 });
 
-autoUpdater.on("error", (ev, err) => {
-  sendStatusToWindow("Error in auto-updater.");
+autoUpdater.on("error", (info) => {
+  sendStatusToWindow(`Update error: ${info}`);
 });
 
-autoUpdater.on("download-progress", (ev, progressObj) => {
-  sendStatusToWindow("Download progress...");
+autoUpdater.on("download-progress", (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + " - Downloaded " + progressObj.percent + "%";
+  log_message =
+    log_message +
+    " (" +
+    progressObj.transferred +
+    "/" +
+    progressObj.total +
+    ")";
+  sendStatusToWindow(log_message);
 });
 
 autoUpdater.on("update-downloaded", (ev, info) => {
@@ -177,7 +187,7 @@ app.on("ready", function () {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   createDefaultWindow();
-  autoUpdater.checkForUpdates();
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
 app.on("window-all-closed", () => {

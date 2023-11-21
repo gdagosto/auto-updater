@@ -19,12 +19,6 @@ const config = {
     output: "dist",
     buildResources: "buildResources",
   },
-  publish: [
-    {
-      provider: "generic",
-      url: "http://127.0.0.1:8080/",
-    },
-  ],
 
   nsis: {
     deleteAppDataOnUninstall: false,
@@ -32,6 +26,7 @@ const config = {
     allowToChangeInstallationDirectory: true,
     runAfterFinish: true,
     perMachine: false,
+    artifactName: "${productName}-${os}-${channel}-${version}.${ext}",
   },
 
   squirrelWindows: {
@@ -40,7 +35,15 @@ const config = {
     artifactName: "${productName}-${os}-${channel}-${version}.${ext}",
   },
   win: {
-    target: ["squirrel"],
+    target: ["nsis"],
+    publish: [
+      {
+        provider: "github",
+        owner: "gdagosto",
+        repo: "auto-updater",
+        private: false,
+      },
+    ],
   },
 };
 
