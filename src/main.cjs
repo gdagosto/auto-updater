@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, autoUpdater, dialog } = require("electron");
 const log = require("electron-log");
+const spawn = require("child_process").spawn;
 const path = require("path");
 
 // Auto updates squirrel
@@ -167,6 +168,7 @@ autoUpdater.on("download-progress", (ev, progressObj) => {
 
 autoUpdater.on("update-downloaded", (ev, info) => {
   sendStatusToWindow("Update downloaded; will install in 5 seconds");
+  autoUpdater.quitAndInstall();
 });
 
 app.on("ready", function () {
