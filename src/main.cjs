@@ -53,7 +53,7 @@ if (handleStartupEvent()) {
  * 2. require `updater.js` for menu implementation, and set `checkForUpdates` callback from `updater` for the click property of `Check Updates...` MenuItem.
  */
 
-const server = "http://localhost:8080";
+const server = "http://127.0.0.1:8080";
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 autoUpdater.setFeedURL({ url });
 
@@ -125,6 +125,7 @@ function sendStatusToWindow(text) {
   log.info(text);
   win.webContents.send("message", text);
 }
+
 function createDefaultWindow() {
   win = new BrowserWindow({
     webPreferences: {
@@ -139,32 +140,40 @@ function createDefaultWindow() {
   win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
   return win;
 }
-// autoUpdater.on("checking-for-update", () => {
-//   sendStatusToWindow("Checking for update...");
-// });
-// autoUpdater.on("update-available", (ev, info) => {
-//   sendStatusToWindow("Update available.");
-// });
-// autoUpdater.on("update-not-available", (ev, info) => {
-//   sendStatusToWindow("Update not available.");
-// });
-// autoUpdater.on("error", (ev, err) => {
-//   sendStatusToWindow("Error in auto-updater.");
-// });
-// autoUpdater.on("download-progress", (ev, progressObj) => {
-//   sendStatusToWindow("Download progress...");
-// });
-// autoUpdater.on("update-downloaded", (ev, info) => {
-//   sendStatusToWindow("Update downloaded; will install in 5 seconds");
-// });
+
+autoUpdater.on("checking-for-update", () => {
+  sendStatusToWindow("Checking for update...");
+});
+
+autoUpdater.on("update-available", (ev, info) => {
+  sendStatusToWindow("Update available.");
+});
+
+autoUpdater.on("update-not-available", (ev, info) => {
+  sendStatusToWindow("Update not available.");
+});
+
+autoUpdater.on("error", (ev, err) => {
+  sendStatusToWindow("Error in auto-updater.");
+});
+
+autoUpdater.on("download-progress", (ev, progressObj) => {
+  sendStatusToWindow("Download progress...");
+});
+
+autoUpdater.on("update-downloaded", (ev, info) => {
+  sendStatusToWindow("Update downloaded; will install in 5 seconds");
+});
+
 app.on("ready", function () {
   // Create the Menu
   console.log("app-is-ready");
-  autoUpdater.checkForUpdates();
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   createDefaultWindow();
+  autoUpdater.checkForUpdates();
 });
+
 app.on("window-all-closed", () => {
   app.quit();
 });
@@ -190,7 +199,3 @@ app.on("window-all-closed", () => {
 // })
 // autoUpdater.on('download-progress', (ev, progressObj) => {
 // })
-
-app.on("ready", function () {
-  // autoUpdater.checkForUpdates();
-});

@@ -1,6 +1,6 @@
 {
   "name": "electron-updater-generic-example",
-  "version": "0.5.4",
+  "version": "0.5.6",
   "main": "src/main.cjs",
   "description": "electron-updater generic example project",
   "author": "Matt Haggard",
@@ -20,24 +20,5 @@
     "build": "electron-builder build --config .electron-builder.config.cjs",
     "build:update": "electron-builder build --config .electron-builder-update.config.cjs",
     "serve": "http-server ./dist"
-  },
-  "build": {
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "http://127.0.0.1:8080/"
-      }
-    ],
-    "appId": "com.github.iffy.electronupdatergenericexample",
-    "mac": {
-      "category": "your.app.category.type",
-      "target": [
-        "zip",
-        "dmg"
-      ]
-    },
-    "nsis": {
-      "perMachine": true
-    }
   }
 }
